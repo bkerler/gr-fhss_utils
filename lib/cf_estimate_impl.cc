@@ -53,8 +53,7 @@ cf_estimate_impl::cf_estimate_impl(int method, std::vector<float> channel_freqs)
     fft_setup(MAX_FFT_POWER);
 
     if (d_channel_freqs.size() == 0 && d_method == COERCE) {
-        GR_LOG_WARN(d_logger,
-                    "CF Estimator operating in COERCE mode with empty channel frequency "
+        d_logger->warn("CF Estimator operating in COERCE mode with empty channel frequency "
                     "list; no CF correction will be applied!");
     }
 }
@@ -125,7 +124,7 @@ void cf_estimate_impl::pdu_handler(pmt::pmt_t pdu)
     // basic checks and pdu parsing
     //////////////////////////////////
     if (!pmt::is_pdu(pdu)) {
-        GR_LOG_WARN(d_logger, "Message is not a PDU, dropping\n");
+        d_logger->warn("Message is not a PDU, dropping\n");
         return;
     }
 
@@ -137,8 +136,7 @@ void cf_estimate_impl::pdu_handler(pmt::pmt_t pdu)
     //////////////////////////////////
     if (!pmt::dict_has_key(meta, PMTCONSTSTR__center_frequency()) ||
         !pmt::dict_has_key(meta, PMTCONSTSTR__sample_rate())) {
-        GR_LOG_WARN(d_logger,
-                    "cf_estimate needs 'center_frequency' and 'sample_rate' metadata\n");
+        d_logger->warn("cf_estimate needs 'center_frequency' and 'sample_rate' metadata\n");
         return;
     }
     double center_frequency = pmt::to_double(
@@ -158,9 +156,8 @@ void cf_estimate_impl::pdu_handler(pmt::pmt_t pdu)
     const gr_complex* data = pmt::c32vector_elements(pdu_data, burst_size);
 
     if (burst_size < MIN_BURST_SIZE) {
-        GR_LOG_INFO(d_logger,
-                    boost::format("Burst of length %d too small (min = %d), dropping.") %
-                        burst_size % MIN_BURST_SIZE);
+        d_logger->info("Burst of length {} too small (min = {}), dropping.",
+                        burst_size,MIN_BURST_SIZE);
     }
 
     //////////////////////////////////
